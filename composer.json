@@ -1,0 +1,24 @@
+{
+    "name": "lefuturiste/localstorage",
+    "description": "Key/value JSON localstorage like redis",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "lefuturiste",
+            "email": "contact@lefuturiste.fr"
+        }
+    ],
+    "require": {
+        "nesbot/carbon": "^2.5",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lefuturiste\\LocalStorage\\": "src"
+        }
+    }
+}
