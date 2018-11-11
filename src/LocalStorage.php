@@ -123,4 +123,9 @@ class LocalStorage
     {
         return count($this->state);
     }
+
+    public function getCreationDateTime(string $key)
+    {
+        return isset($this->state[$key]) ? $this->state[$key]['at'] : NULL;
+    }
 }
