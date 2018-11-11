@@ -2,11 +2,9 @@
 
 class LocalStorageTest extends \PHPUnit\Framework\TestCase
 {
-    private $path = '../tmp/data.json';
-
     public function getInstance(): \Lefuturiste\LocalStorage\LocalStorage
     {
-        return new \Lefuturiste\LocalStorage\LocalStorage($this->path);
+        return new \Lefuturiste\LocalStorage\LocalStorage(dirname(__DIR__) . '/tmp/data.json');
     }
 
     public function testLocalStorage()
@@ -44,7 +42,7 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(0, $localStorage->getCount());
     }
 
-    public function testDeleteDatetime()
+    public function testDeleteDatetimeSecondScale()
     {
         $localStorage = $this->getInstance();
         $localStorage->set('to_expire', 'foo');
@@ -55,5 +53,21 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($localStorage->get('to_expire'));
         $this->assertNotNull($localStorage->get('to_expire2'));
         $this->assertEquals('bar', $localStorage->get('to_expire2'));
+    }
+
+    public function testDeleteDatetimeMinuteScaleWithWrite()
+    {
+        $localStorage = $this->getInstance();
+        $localStorage->set('key', 'value');
+        $this->assertEquals('value', $localStorage->get('key'));
+        $this->assertEquals((new \Carbon\Carbon())->toDateTimeString(), $localStorage->getCreationDateTime('key'));
+        $localStorage->persist();
+        fwrite(STDERR, print_r("\n > Enter in an expected sleep mode \n", true));
+        sleep(61);
+        fwrite(STDERR, print_r("\n > Exited a expected sleep mode \n", true));
+        $localStorage = $this->getInstance();
+        $this->assertEquals('value', $localStorage->get('key'));
+        $localStorage->deleteOlderThan(\Carbon\CarbonInterval::minute(1));
+        $this->assertNull($localStorage->get('key'));
     }
 }
