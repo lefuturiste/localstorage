@@ -42,6 +42,26 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(0, $localStorage->getCount());
     }
 
+    public function testIfExist()
+    {
+        $localStorage = $this->getInstance();
+        $localStorage->set('foo', 'bar');
+        $this->assertTrue($localStorage->exist('foo'));
+        $this->assertFalse($localStorage->exist('hello'));
+        $localStorage->save();
+        $localStorage = $this->getInstance();
+        $this->assertTrue($localStorage->exist('foo'));
+        $this->assertFalse($localStorage->exist('hello'));
+        $localStorage->remove('foo');
+        $localStorage->set('hello','world');
+        $localStorage->save();
+        $localStorage = $this->getInstance();
+        $this->assertFalse($localStorage->exist('foo'));
+        $this->assertTrue($localStorage->exist('hello'));
+        $localStorage->clear();
+        $localStorage->save();
+    }
+
     public function testDeleteDatetimeSecondScale()
     {
         $localStorage = $this->getInstance();

@@ -61,6 +61,11 @@ class LocalStorage
         }, $this->state);
     }
 
+    public function exist(string $key): bool
+    {
+        return isset($this->state[$key]) ? true : false;
+    }
+
     public function get(string $key)
     {
         return isset($this->state[$key]) ? $this->state[$key]['value'] : NULL;
