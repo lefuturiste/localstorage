@@ -62,6 +62,21 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $localStorage->save();
     }
 
+    public function testFileUnlink()
+    {
+        $localStorage = $this->getInstance();
+        $localStorage->set('foo', 'bar');
+        $this->assertEquals('bar', $localStorage->get('foo'));
+        $localStorage->save();
+        $localStorage = $this->getInstance();
+        $this->assertTrue($localStorage->exist('foo'));
+        $this->assertTrue(file_exists($localStorage->getPath()));
+        $localStorage->unlinkStorage();
+        $this->assertFalse(file_exists($localStorage->getPath()));
+        $localStorage = $this->getInstance();
+        $this->assertTrue($localStorage->isEmpty());
+    }
+
     public function testDeleteDatetimeSecondScale()
     {
         $localStorage = $this->getInstance();

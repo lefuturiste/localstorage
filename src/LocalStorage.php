@@ -124,6 +124,14 @@ class LocalStorage
         return empty($this->state);
     }
 
+    /**
+     * Delete the json storage file
+     */
+    public function unlinkStorage(): void
+    {
+        unlink($this->path);
+    }
+
     public function getCount(): int
     {
         return count($this->state);
@@ -132,5 +140,10 @@ class LocalStorage
     public function getCreationDateTime(string $key)
     {
         return isset($this->state[$key]) ? $this->state[$key]['at'] : NULL;
+    }
+
+    public function getPath()
+    {
+        return $this->path;
     }
 }
