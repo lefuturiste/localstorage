@@ -68,7 +68,7 @@ class LocalStorage
 
     public function exist(string $key): bool
     {
-        return $this->exists(key);
+        return $this->exists($key);
     }
 
     public function get(string $key)
