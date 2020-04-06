@@ -20,5 +20,8 @@
         "psr-4": {
             "Lefuturiste\\LocalStorage\\": "src"
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit test"
     }
 }
