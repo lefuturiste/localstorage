@@ -90,6 +90,19 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('bar', $localStorage->get('to_expire2'));
     }
 
+    public function testChainability()
+    {
+        $localStorage = $this->getInstance()
+            ->clear()
+            ->save()
+            ->set('key', 'value')
+            ->save();
+        $this->assertInstanceOf(\Lefuturiste\LocalStorage\LocalStorage::class, $localStorage);
+        $this->assertEquals('value', $localStorage->get('key'));
+        $localStorage = $localStorage->remove('key')->save();
+        $this->assertNull($localStorage->get('key'));
+    }
+
     public function testDeleteDatetimeMinuteScaleWithWrite()
     {
         $localStorage = $this->getInstance();

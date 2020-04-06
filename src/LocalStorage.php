@@ -34,19 +34,21 @@ class LocalStorage
         }
     }
 
-    public function write(): void
+    public function write(): self
     {
         file_put_contents($this->path, json_encode($this->state));
+
+        return $this;
     }
 
-    public function save(): void
+    public function save(): self
     {
-        $this->write();
+        return $this->write();
     }
 
-    public function persist(): void
+    public function persist(): self
     {
-        $this->write();
+        return $this->write();
     }
 
     public function getState(): array
@@ -76,7 +78,7 @@ class LocalStorage
         return isset($this->state[$key]) ? $this->state[$key]['value'] : NULL;
     }
 
-    public function set(string $key, $value, $withDate = true): void
+    public function set(string $key, $value, $withDate = true): self
     {
         $this->state[$key] = [
             'value' => $value
@@ -84,24 +86,28 @@ class LocalStorage
         if ($withDate) {
             $this->state[$key]['at'] = (new Carbon())->toDateTimeString();
         }
+        
+        return $this;
     }
 
-    public function del(string $key): void
+    public function del(string $key): self
     {
         unset($this->state[$key]);
+
+        return $this;
     }
 
-    public function delete(string $key): void
+    public function delete(string $key): self
     {
-        $this->del($key);
+        return $this->del($key);
     }
 
-    public function remove(string $key): void
+    public function remove(string $key): self
     {
-        $this->del($key);
+        return $this->del($key);
     }
 
-    public function deleteOlderThan(CarbonInterval $duration): void
+    public function deleteOlderThan(CarbonInterval $duration): self
     {
         $toCompare = new Carbon();
         $toCompare->add($duration->invert());
@@ -112,16 +118,20 @@ class LocalStorage
                 unset($this->state[$key]);
             }
         }
+
+        return $this;
     }
 
-    public function clear(): void
+    public function clear(): self
     {
         $this->state = [];
+
+        return $this;
     }
 
-    public function reset(): void
+    public function reset(): self
     {
-        $this->clear();
+        return $this->clear();
     }
 
     public function isEmpty(): bool
@@ -132,9 +142,11 @@ class LocalStorage
     /**
      * Delete the json storage file
      */
-    public function unlinkStorage(): void
+    public function unlinkStorage(): self
     {
         unlink($this->path);
+
+        return $this;
     }
 
     public function getCount(): int
