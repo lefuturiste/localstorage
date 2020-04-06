@@ -97,12 +97,12 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('value', $localStorage->get('key'));
         $this->assertEquals((new \Carbon\Carbon())->toDateTimeString(), $localStorage->getCreationDateTime('key'));
         $localStorage->persist();
-        fwrite(STDERR, print_r("\n > Enter in an expected sleep mode (61s) \n", true));
-        sleep(61);
+        fwrite(STDERR, print_r("\n > Enter in an expected sleep mode (10s) \n", true));
+        sleep(10);
         fwrite(STDERR, print_r("\n > Exited a expected sleep mode \n", true));
         $localStorage = $this->getInstance();
         $this->assertEquals('value', $localStorage->get('key'));
-        $localStorage->deleteOlderThan(\Carbon\CarbonInterval::minute(1));
+        $localStorage->deleteOlderThan(\Carbon\CarbonInterval::seconds(10));
         $this->assertNull($localStorage->get('key'));
     }
 }
