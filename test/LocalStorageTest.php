@@ -7,6 +7,20 @@ class LocalStorageTest extends \PHPUnit\Framework\TestCase
         return new \Lefuturiste\LocalStorage\LocalStorage(dirname(__DIR__) . '/tmp/data.json');
     }
 
+    public function testNested()
+    {
+        $instance =
+            $this->getInstance()
+                ->clear()
+                ->set('foo.bar', 'value')
+                ->set('item.fr.slug-slug', ['foo' => 'bar']);
+        
+        $this->assertEquals('value', $instance->get('foo.bar'));
+        $this->assertEquals(['foo' => 'bar'], $instance->get('item.fr.slug-slug'));
+        $this->assertEquals(NULL, $instance->get('level1.level2'));
+        $this->assertEquals(false, $instance->exists('level1.level2'));
+    }
+
     public function testLocalStorage()
     {
         $localStorage = $this->getInstance();

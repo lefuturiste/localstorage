@@ -4,6 +4,7 @@ namespace Lefuturiste\LocalStorage;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Adbar\Dot;
 
 class LocalStorage
 {
@@ -14,9 +15,9 @@ class LocalStorage
     private $path;
 
     /**
-     * @var array
+     * @var Dot
      */
-    private $state = [];
+    private $state;
 
     public function __construct(string $path)
     {
@@ -27,16 +28,17 @@ class LocalStorage
     private function read(): void
     {
         if (!file_exists($this->path)) {
-            $this->state = [];
+            $state = [];
         } else {
             $contents = json_decode(file_get_contents($this->path), true);
-            $this->state = $contents == NULL ? [] : $contents;
+            $state = $contents == NULL ? [] : $contents;
         }
+        $this->state = new \Adbar\Dot($state);
     }
 
     public function write(): self
     {
-        file_put_contents($this->path, json_encode($this->state));
+        file_put_contents($this->path, json_encode($this->state->all()));
 
         return $this;
     }
@@ -51,48 +53,70 @@ class LocalStorage
         return $this->write();
     }
 
-    public function getState(): array
+    public function getState()
     {
-        return $this->state;
+        return $this->state->get();
     }
 
-    public function getAll(): array
+    public function getAll($details = false): array
     {
-        return array_map(function ($item) {
-            return $item['value'];
-        }, $this->state);
+        $all = [];
+        $flat = $this->state->flatten();
+        foreach ($flat as $key => $value) {
+            if (strpos($key, '.at') !== false) {
+                continue;
+            }
+            $key = str_replace('.value', '', $key);
+            if ($details) {
+                $all[$key] = [
+                    'value' => $value,
+                    'at' => $flat[$key . '.at']
+                ];
+            } else {
+                $all[$key] = $value;
+            }
+        }
+        return $all;
     }
 
     public function exists(string $key): bool
     {
-        return isset($this->state[$key]) ? true : false;
+        return $this->state->has($key);
     }
 
     public function exist(string $key): bool
     {
-        return $this->exists($key);
+        return $this->state->has($key);
     }
 
-    public function get(string $key)
+    public function has(string $key): bool
     {
-        return isset($this->state[$key]) ? $this->state[$key]['value'] : NULL;
+        return $this->state->has($key);
+    }
+
+    public function get(string $key, $default = NULL)
+    {
+        $item = $this->state->get($key, NULL);
+        if ($item === NULL) {
+            return $default;
+        }
+        return $item['value'];
     }
 
     public function set(string $key, $value, $withDate = true): self
     {
-        $this->state[$key] = [
-            'value' => $value
+        $context = [
+            'value' => $value,
+            'at' => $withDate ? (new Carbon())->toDateTimeString() : NULL
         ];
-        if ($withDate) {
-            $this->state[$key]['at'] = (new Carbon())->toDateTimeString();
-        }
-        
+        $this->state->set($key, $context);
+
         return $this;
     }
 
     public function del(string $key): self
     {
-        unset($this->state[$key]);
+        $this->state->delete($key);
 
         return $this;
     }
@@ -111,11 +135,11 @@ class LocalStorage
     {
         $toCompare = new Carbon();
         $toCompare->add($duration->invert());
-        foreach ($this->state as $key => $item)
+        foreach ($this->getAll(true) as $key => $item)
         {
             $dateItem = new Carbon($item['at']);
             if (!$dateItem->greaterThan($toCompare)){
-                unset($this->state[$key]);
+                $this->state->delete($key);
             }
         }
 
@@ -124,7 +148,7 @@ class LocalStorage
 
     public function clear(): self
     {
-        $this->state = [];
+        $this->state->clear();
 
         return $this;
     }
@@ -136,7 +160,7 @@ class LocalStorage
 
     public function isEmpty(): bool
     {
-        return empty($this->state);
+        return $this->state->count() === 0;
     }
 
     /**
@@ -156,7 +180,7 @@ class LocalStorage
 
     public function getCreationDateTime(string $key)
     {
-        return isset($this->state[$key]) ? $this->state[$key]['at'] : NULL;
+        return $this->state->has($key) ? $this->state->get($key)['at'] : NULL;
     }
 
     public function getPath()
